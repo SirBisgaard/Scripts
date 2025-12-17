@@ -16,7 +16,6 @@ mount -o remount,exec /tmp
 sh ./nvidia.run --accept-license \
   --no-questions \
   --ui=none \
-  --kernel-module-only \
   --no-drm                       
 
 # Install Nvidia Container Tools
