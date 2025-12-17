@@ -3,7 +3,7 @@
 # This script is created for installing Nvidia drivers on TrueNAS scale, when running an older Nvidia GPU that is not supported by the OS. 
 # The installers are from 
 
-# prerequsits
+# Prerequisites
 install-dev-tools
 
 # Unlock the OS
@@ -13,7 +13,11 @@ zfs set readonly=off "$(zfs list -H -o name /usr)"
 # Download and install Nvidia drivers
 wget -O nvidia.run https://us.download.nvidia.com/XFree86/Linux-x86_64/580.119.02/NVIDIA-Linux-x86_64-580.119.02.run
 mount -o remount,exec /tmp
-sh ./nvidia.run                        
+sh ./nvidia.run --accept-license \
+  --no-questions \
+  --ui=none \
+  --kernel-module-only \
+  --no-drm                       
 
 # Install Nvidia Container Tools
 curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
@@ -27,10 +31,14 @@ apt-get install -y nvidia-container-toolkit
 #wget -O cuda.run https://developer.download.nvidia.com/compute/cuda/12.9.0/local_installers/cuda_12.9.0_575.51.03_linux.run
 wget -O cuda.run https://developer.download.nvidia.com/compute/cuda/13.1.0/local_installers/cuda_13.1.0_590.44.01_linux.run
 mount -o remount,exec /tmp
-sh cuda.run
+sh cuda.run --silent \
+  --toolkit \
+  --no-opengl-libs \
+  --no-driver
 
-# This will propperly fail because it needs a reboot. 
-nvidia-smi --query-gpu=pci.bus_id,gpu_uuid --format=csv
+# This is for updating apps to have the GPU.
+# nvidia-smi --query-gpu=pci.bus_id,gpu_uuid --format=csv
+# midclt call -j app.update 'APP-NAME' '{"values": {"resources": {"gpus": {"use_all_gpus": false, "nvidia_gpu_selection": {"PCI-BUS-ID": {"use_gpu": true, "uuid": "GPU-UUID"}}}}}}'
 
 # Lock the OS 
 zfs set readonly=on "$(zfs list -H -o name /usr)"
