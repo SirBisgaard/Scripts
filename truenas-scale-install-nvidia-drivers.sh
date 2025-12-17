@@ -47,3 +47,6 @@ systemctl restart docker
 # Clean up
 rm nvidia.run
 rm cuda.run
+
+# Show results
+nvidia-smi
